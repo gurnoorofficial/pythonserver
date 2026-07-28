@@ -124,6 +124,9 @@ class FileServerHandler(BaseHTTPRequestHandler):
             if not file_path.is_file():
                 continue
 
+            if file_path.name == ".gitkeep":
+                continue
+
             file_name = file_path.name
             escaped_name = html.escape(file_name)
             encoded_name = quote(file_name)
@@ -361,6 +364,10 @@ class FileServerHandler(BaseHTTPRequestHandler):
             filename = safe_filename(filename_value)
         except ValueError:
             self.send_error(400, "Invalid filename")
+            return
+
+        if filename == ".gitkeep":
+            self.send_error(403, ".gitkeep is protected and cannot be deleted")
             return
 
         filepath = (UPLOAD_DIR / filename).resolve()

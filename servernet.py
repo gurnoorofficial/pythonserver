@@ -227,6 +227,9 @@ class FileServerHandler(BaseHTTPRequestHandler):
         file_rows = []
 
         for filepath in files:
+            if filepath.name == ".gitkeep":
+                continue
+
             escaped_name = html.escape(filepath.name, quote=True)
             encoded_name = quote(filepath.name)
             file_size = self.format_size(filepath.stat().st_size)
@@ -350,6 +353,10 @@ class FileServerHandler(BaseHTTPRequestHandler):
             )
         except ValueError:
             self.send_error(400, "Invalid filename")
+            return
+
+        if filename == ".gitkeep":
+            self.send_error(403, ".gitkeep is protected and cannot be deleted")
             return
 
         filepath = (UPLOAD_DIR / filename).resolve()
